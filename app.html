@@ -1,0 +1,40 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>IoTServer</title>
+    <script type="text/javascript" src="//code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.slim.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+ <script type="text/javascript" charset="utf-8">
+        $(document).ready(function(){
+	    Plotly.plot('graph', [{
+	    	  y: [0],
+	    	  mode: 'lines',
+	    	  line: {color: '#80CAF6'}
+	    }]);
+		
+	    namespace = '/test';
+            var socket = io.connect('http://' + document.domain + ':' + location.port + namespace);
+
+            socket.on('connect', function() {
+                socket.emit('my event', {data: 'I\'m connected!'});
+            });
+            socket.on('disconnect', function() {
+                //$('#log').append('<br>Disconnected');
+		console.log('disconnected');
+            });
+            socket.on('my response', function(msg) {
+                //$('#log').append('<br>Received: ' + msg.data);
+		console.log('Received ' + msg.data);
+		Plotly.extendTraces('graph',{
+			y:[ [ parseFloat(msg.data)] ]
+		},[0])
+            });
+
+        });
+    </script>
+<body>
+	Hello from IoTServer
+</body>
+<div id=graph></div>
+</html>
